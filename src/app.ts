@@ -8,3 +8,5 @@ app.get("/", (req: Request, res: Response) => {
     Message: "PH Health Care Server...",
   });
 });
+
+export default app;
