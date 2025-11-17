@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "rootDir": "./src", // source files
+    "outDir": "./dist", // compiled JS files
+    "module": "nodenext", // ES module support
+    "moduleResolution": "nodenext", // ES module resolution
+    "target": "ESNext", // latest JS features
+    "jsx": "react-jsx",
+    "lib": ["ESNext"],
+    "types": ["node"], // Node types
+    "skipLibCheck": true,
+    "sourceMap": true,
+    "declaration": true,
+    "declarationMap": true,
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "exactOptionalPropertyTypes": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "verbatimModuleSyntax": true, // preserves import/export
+    "isolatedModules": true,
+    "noUncheckedSideEffectImports": true,
+    "moduleDetection": "force"
+  },
+  "include": ["src/**/*.ts", "prisma/**/*.ts"],
+  "exclude": ["node_modules", "dist"]
+}
