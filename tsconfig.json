@@ -1,13 +1,13 @@
 {
   "compilerOptions": {
-    "rootDir": "./src", // source files
-    "outDir": "./dist", // compiled JS files
-    "module": "nodenext", // ES module support
-    "moduleResolution": "nodenext", // ES module resolution
-    "target": "ESNext", // latest JS features
+    "rootDir": "./src",
+    "outDir": "./dist",
+    "module": "nodenext",
+    "moduleResolution": "nodenext",
+    "target": "ESNext",
     "jsx": "react-jsx",
     "lib": ["ESNext"],
-    "types": ["node"], // Node types
+    "types": ["node"],
     "skipLibCheck": true,
     "sourceMap": true,
     "declaration": true,
@@ -18,7 +18,7 @@
     "noImplicitReturns": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
-    "verbatimModuleSyntax": true, // preserves import/export
+    "verbatimModuleSyntax": false,
     "isolatedModules": true,
     "noUncheckedSideEffectImports": true,
     "moduleDetection": "force"
