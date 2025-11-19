@@ -4,9 +4,20 @@ const getAllFromDB = async (params: any) => {
   console.log({ params });
   const result = await prisma.admin.findMany({
     where: {
-      name: {
-        contains: params.searchTerm,
-      },
+      OR: [
+        {
+          name: {
+            contains: params.searchTerm,
+            mode: "insensitive",
+          },
+        },
+        {
+          email: {
+            contains: params.searchTerm,
+            mode: "insensitive",
+          },
+        },
+      ],
     },
   });
   return result;
