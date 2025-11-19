@@ -1,4 +1,4 @@
-import express, { Request, Response } from "express";
+import express from "express";
 import { AdminController } from "./admin.controller.js";
 
 const router = express.Router();
