@@ -1,14 +1,15 @@
-import { PrismaClient } from "@prisma/client";
-import express, { Request, Response } from "express";
+import { Request, Response } from "express";
+import { AdminService } from "./admin.service.js";
 
-const router = express.Router();
-const prisma = new PrismaClient();
-router.get("/", async (req: Request, res: Response) => {
-  const result = await prisma.admin.findMany();
+const getAllFromDB = async (req: Request, res: Response) => {
+  const result = await AdminService.getAllFromDB();
   res.status(200).json({
     success: true,
     message: "Admin Data Fetched",
     data: result,
   });
-});
-export const AdminRoutes = router;
+};
+
+export const AdminController = {
+  getAllFromDB,
+};
