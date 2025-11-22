@@ -1,7 +1,7 @@
-import { Prisma, PrismaClient } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import { adminSearchAbleField } from "./admin.constant.js";
 import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
-const prisma = new PrismaClient();
+import prisma from "../../../shared/prisma.js";
 
 const getAllFromDB = async (params: any, options: any) => {
   const { limit, page, skip } = pagintaionHelper.calculatePagination(options);
