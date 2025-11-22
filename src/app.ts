@@ -1,7 +1,5 @@
 import express, { Application, Request, Response } from "express";
 import cors from "cors";
-import { useRoutes } from "./app/modules/User/user.routes.js";
-import { AdminRoutes } from "./app/modules/Admin/admin.routes.js";
 import router from "./app/routes/index.js";
 
 const app: Application = express();
