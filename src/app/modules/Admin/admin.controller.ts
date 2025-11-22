@@ -1,6 +1,6 @@
 import { Request, Response } from "express";
 import { AdminService } from "./admin.service.js";
-import pick from "../../../pick.js";
+import pick from "../../../shared/pick.js";
 import { adminFilterableFields } from "./admin.constant.js";
 
 const getAllFromDB = async (req: Request, res: Response) => {
