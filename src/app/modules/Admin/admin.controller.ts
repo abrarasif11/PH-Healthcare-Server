@@ -1,4 +1,4 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import { AdminService } from "./admin.service.js";
 import pick from "../../../shared/pick.js";
 import { adminFilterableFields } from "./admin.constant.js";
@@ -50,7 +50,11 @@ const getIdByDb = async (req: Request, res: Response) => {
   }
 };
 
-const updateIntoDB = async (req: Request, res: Response) => {
+const updateIntoDB = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   console.log("id", id);
   console.log("data", req.body);
@@ -63,11 +67,7 @@ const updateIntoDB = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err?.name || "Something Went Wrong",
-      error: err,
-    });
+    next(err);
   }
 };
 
