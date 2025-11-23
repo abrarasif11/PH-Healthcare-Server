@@ -1,9 +1,11 @@
-import { NextFunction, Request, Response } from "express";
+import { NextFunction, Request, RequestHandler, Response } from "express";
 import { AdminService } from "./admin.service.js";
 import pick from "../../../shared/pick.js";
 import { adminFilterableFields } from "./admin.constant.js";
 import sendResponse from "../../../shared/sendResponse.js";
 import httpStatus from "http-status";
+
+const catchAsync = (fn: RequestHandler) => {};
 
 const getAllFromDB = async (
   req: Request,
