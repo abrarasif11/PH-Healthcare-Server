@@ -5,7 +5,11 @@ import { adminFilterableFields } from "./admin.constant.js";
 import sendResponse from "../../../shared/sendResponse.js";
 import httpStatus from "http-status";
 
-const getAllFromDB = async (req: Request, res: Response) => {
+const getAllFromDB = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   try {
     // console.log(req.query);
 
@@ -23,15 +27,11 @@ const getAllFromDB = async (req: Request, res: Response) => {
       data: result.data,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err?.name || "Something Went Wrong",
-      error: err,
-    });
+    next(err);
   }
 };
 
-const getIdByDb = async (req: Request, res: Response) => {
+const getIdByDb = async (req: Request, res: Response, next: NextFunction) => {
   const { id } = req.params;
   try {
     const result = await AdminService.getIdByDb(id);
@@ -42,11 +42,7 @@ const getIdByDb = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err?.name || "Something Went Wrong",
-      error: err,
-    });
+    next(err);
   }
 };
 
@@ -71,7 +67,11 @@ const updateIntoDB = async (
   }
 };
 
-const deleteFromDb = async (req: Request, res: Response) => {
+const deleteFromDb = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   console.log("id", id);
   console.log("data", req.body);
@@ -84,15 +84,15 @@ const deleteFromDb = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err?.name || "Something Went Wrong",
-      error: err,
-    });
+    next(err);
   }
 };
 
-const softDeleteFromDb = async (req: Request, res: Response) => {
+const softDeleteFromDb = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const { id } = req.params;
   console.log("id", id);
   console.log("data", req.body);
@@ -105,11 +105,7 @@ const softDeleteFromDb = async (req: Request, res: Response) => {
       data: result,
     });
   } catch (err) {
-    res.status(500).json({
-      success: false,
-      message: err?.name || "Something Went Wrong",
-      error: err,
-    });
+    next(err);
   }
 };
 
