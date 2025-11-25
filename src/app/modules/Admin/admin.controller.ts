@@ -1,19 +1,10 @@
-import { NextFunction, Request, RequestHandler, Response } from "express";
+import { Request, RequestHandler, Response } from "express";
 import { AdminService } from "./admin.service.js";
 import pick from "../../../shared/pick.js";
 import { adminFilterableFields } from "./admin.constant.js";
 import sendResponse from "../../../shared/sendResponse.js";
 import httpStatus from "http-status";
-
-const catchAsync = (fn: RequestHandler) => {
-  return async (req: Request, res: Response, next: NextFunction) => {
-    try {
-      await fn(req, res, next);
-    } catch (err) {
-      next(err);
-    }
-  };
-};
+import catchAsync from "../../../shared/catchAsync.js";
 
 const getAllFromDB: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {
