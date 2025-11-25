@@ -3,6 +3,7 @@ import catchAsync from "../../../shared/catchAsync.js";
 import sendResponse from "../../../shared/sendResponse.js";
 import httpStatus from "http-status";
 import { AuthServices } from "./Auth.service.js";
+
 const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthServices.loginUser(req.body);
 
@@ -23,6 +24,24 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     },
   });
 });
+
+const refreshToken = catchAsync(async (req: Request, res: Response) => {
+  const { refreshToken } = req.cookies;
+  const result = await AuthServices.refreshToken(refreshToken);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Login Successful",
+    data: result,
+    // data: {
+    //   accessToken: result.accessToken,
+    //   needPassChange: result.needPassChange,
+    // },
+  });
+});
+
 export const AuthController = {
   loginUser,
+  refreshToken,
 };

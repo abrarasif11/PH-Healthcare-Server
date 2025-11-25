@@ -42,6 +42,12 @@ const loginUser = async (payload: { email: string; password: string }) => {
     needPassChange: userData.needPasswordChange,
   };
 };
+
+const refreshToken = async (token: string) => {
+  console.log("refreshToken", token);
+};
+
 export const AuthServices = {
   loginUser,
+  refreshToken,
 };
