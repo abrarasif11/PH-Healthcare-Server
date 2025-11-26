@@ -112,8 +112,18 @@ const changePassword = async (user: any, payload: any) => {
   };
 };
 
+const forgetPassword = async (payload: { email: string }) => {
+  const userData = await prisma.user.findUniqueOrThrow({
+    where: {
+      email: payload.email,
+      status: UserStatus.ACTIVE,
+    },
+  });
+};
+
 export const AuthServices = {
   loginUser,
   refreshToken,
   changePassword,
+  forgetPassword,
 };
