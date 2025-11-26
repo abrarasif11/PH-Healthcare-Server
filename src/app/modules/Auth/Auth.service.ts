@@ -84,6 +84,7 @@ const changePassword = async (user: any, payload: any) => {
   const userData = await prisma.user.findUniqueOrThrow({
     where: {
       email: user.email,
+      status: UserStatus.ACTIVE,
     },
   });
 
@@ -106,6 +107,9 @@ const changePassword = async (user: any, payload: any) => {
       needPasswordChange: false,
     },
   });
+  return {
+    message: "Password Change Successfully",
+  };
 };
 
 export const AuthServices = {
