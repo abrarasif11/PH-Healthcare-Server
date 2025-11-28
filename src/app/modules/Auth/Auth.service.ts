@@ -136,18 +136,18 @@ const forgetPassword = async (payload: { email: string }) => {
   await emailSender(
     userData.email,
     `
-      <div>
-          <p>Dear User,</p>
-          <p>Your password reset link
-              <a href=${resetPassLink}>
-                  <button>
-                      Reset Password
-                  </button>
-              </a>
-          </p>
+        <div>
+            <p>Dear User,</p>
+            <p>Your password reset link 
+                <a href=${resetPassLink}>
+                    <button>
+                        Reset Password
+                    </button>
+                </a>
+            </p>
 
-      </div>
-      `
+        </div>
+        `
   );
   console.log(resetPassLink);
 };

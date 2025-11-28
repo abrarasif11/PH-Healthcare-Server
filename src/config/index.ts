@@ -1,6 +1,5 @@
 import dotenv from "dotenv";
 import path from "path";
-import { email } from "zod";
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 export default {
   env: process.env.NODE_ENV,
@@ -15,7 +14,7 @@ export default {
   },
   reset_pass_link: process.env.RESET_PASSWORD_LINK,
   emailSender: {
-    email: process.env.EMAIl,
+    email: process.env.EMAIL,
     app_pass: process.env.APP_PASSWORD,
   },
 };
