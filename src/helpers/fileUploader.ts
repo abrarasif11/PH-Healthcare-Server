@@ -1,6 +1,8 @@
 import multer from "multer";
 import { v2 as cloudinary } from "cloudinary";
-import path from "path";
+import path, { resolve } from "path";
+import { rejects } from "assert";
+import { error } from "console";
 
 cloudinary.config({
   cloud_name: "djbubyrhf",
@@ -19,21 +21,20 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 const uploadToCloudinary = async (file: any) => {
-  const filePath = path.resolve(
-    "D:/Web-Practice-Projects/PH-(projetcts)/PH-Heathcare-Server/uploads/A Plague Tale_ Requiem - 1.5.1.0 (20230517_1120) 2_11_2025 11_40_56 PM.png"
-  );
-
-  cloudinary.uploader.upload(
-    filePath,
-    { public_id: "pic" },
-    function (error, result) {
-      if (error) {
-        console.error("Upload error:", error);
-        return;
+  console.log({ file });
+  return new Promise((resolve, reject) => {
+    cloudinary.uploader.upload(
+      file.path,
+      { public_id: file.originalname },
+      (error, result) => {
+        if (error) {
+          reject(error);
+        } else {
+          resolve(result);
+        }
       }
-      console.log("Upload result:", result);
-    }
-  );
+    );
+  });
 };
 
 export const fileUploader = {
