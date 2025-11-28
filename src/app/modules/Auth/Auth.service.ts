@@ -138,7 +138,7 @@ const forgetPassword = async (payload: { email: string }) => {
     `
         <div>
             <p>Dear User,</p>
-            <p>Your password reset link 
+            <p>Your password reset link
                 <a href=${resetPassLink}>
                     <button>
                         Reset Password
