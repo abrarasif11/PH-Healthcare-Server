@@ -1,23 +1,38 @@
 import prisma from "../../../shared/prisma.js";
 
 const updateIntoDB = async (id: string, payload: any) => {
-  const doctorData = await prisma.doctor.findUniqueOrThrow({
+  const { specialties, ...doctorData } = payload;
+  const doctorInfo = await prisma.doctor.findUniqueOrThrow({
     where: {
       id,
     },
   });
 
-  const updateDoctorData = await prisma.doctor.update({
-    where: {
-      id,
-    },
-    data: payload,
-    include: {
-      doctorSpecialties: true,
-    },
+  const result = await prisma.$transaction(async (transactionClient) => {
+    const updateDoctorData = await transactionClient.doctor.update({
+      where: {
+        id,
+      },
+      data: doctorData,
+      include: {
+        doctorSpecialties: true,
+      },
+    });
+
+    for (const specialtiesId of specialties) {
+      const createDoctorSpecialties =
+        await transactionClient.doctorSpecialties.create({
+          data: {
+            doctorId: doctorInfo.id,
+            specialtiesId: specialtiesId,
+          },
+        });
+    }
+
+    return updateDoctorData;
   });
 
-  return updateDoctorData;
+  return result;
 };
 
 export const DoctorService = {
