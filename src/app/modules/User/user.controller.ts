@@ -5,6 +5,7 @@ import sendResponse from "../../../shared/sendResponse.js";
 import httpStatus from "http-status";
 import { userFilterableSearch } from "./user.constant.js";
 import pick from "../../../shared/pick.js";
+import { IAuthUser } from "../../interfaces/common.js";
 
 const createAdmin = catchAsync(async (req: Request, res: Response) => {
   const result = await userService.createAdmin(req);
@@ -64,29 +65,33 @@ const changeProfileStatus = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getMyProfile = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user;
-  const result = await userService.getMyProfile(user);
+const getMyProfile = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await userService.getMyProfile(user as IAuthUser);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "My Profile Data Fetched",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "My Profile Data Fetched",
+      data: result,
+    });
+  }
+);
 
-const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
-  const user = req.user;
-  const result = await userService.updateMyProfile(user, req);
+const updateMyProfile = catchAsync(
+  async (req: Request & { user?: IAuthUser }, res: Response) => {
+    const user = req.user;
+    const result = await userService.updateMyProfile(user as IAuthUser, req);
 
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "My Profile Updated",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "My Profile Updated",
+      data: result,
+    });
+  }
+);
 
 export const userController = {
   createAdmin,
