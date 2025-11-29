@@ -42,7 +42,7 @@ const createDoctor = z.object({
       required_error: "appointment fee is required",
     }),
     qualification: z.string({
-      required_error: "quilification is required",
+      required_error: "qualification is required",
     }),
     currentWorkingPlace: z.string({
       required_error: "Current working place is required!",
