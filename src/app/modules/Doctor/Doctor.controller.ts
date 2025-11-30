@@ -64,9 +64,23 @@ const deleteFromDb = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const softDeleteFromDb = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  console.log("id", id);
+  console.log("data", req.body);
+  const result = await DoctorService.softDeleteFromDb(id);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Admin Data Deleted!!",
+    data: result,
+  });
+});
+
 export const DoctorController = {
   updateIntoDB,
   getAllFromDB,
   getIdByDb,
   deleteFromDb,
+  softDeleteFromDb,
 };
