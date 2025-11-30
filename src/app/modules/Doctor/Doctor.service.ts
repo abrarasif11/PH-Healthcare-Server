@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Doctor, Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma.js";
 import { IDoctorFilterRequest } from "./Doctor.interface.js";
 import { IPaginationOptions } from "../../interfaces/pagination.js";
@@ -158,7 +158,26 @@ const getAllFromDB = async (
   };
 };
 
+const getByIdFromDB = async (id: string): Promise<Doctor | null> => {
+  const result = await prisma.doctor.findUnique({
+    where: {
+      id,
+      isDeleted: false,
+    },
+    include: {
+      doctorSpecialties: {
+        include: {
+          specialities: true,
+        },
+      },
+      review: true,
+    },
+  });
+  return result;
+};
+
 export const DoctorService = {
   updateIntoDB,
   getAllFromDB,
+  getByIdFromDB,
 };
