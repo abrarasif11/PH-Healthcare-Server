@@ -73,8 +73,8 @@ const getAllFromDB = async (
   options: IDoctorUpdate
 ) => {
   const { limit, page, skip } = pagintaionHelper.calculatePagination(options);
-  const { searchTerm, ...filterData } = params;
-  const andCondition: Prisma.AdminWhereInput[] = [];
+  const { searchTerm, specialties, ...filterData } = params;
+  const andCondition: Prisma.DoctorWhereInput[] = [];
 
   // console.log(filterData);
   if (params.searchTerm) {
@@ -85,6 +85,21 @@ const getAllFromDB = async (
           mode: "insensitive",
         },
       })),
+    });
+  }
+
+  if (specialties && specialties.length > 0) {
+    andCondition.push({
+      doctorSpecialties: {
+        some: {
+          specialties: {
+            title: {
+              contains: specialties,
+              mode: "insensitive",
+            },
+          },
+        },
+      },
     });
   }
 
