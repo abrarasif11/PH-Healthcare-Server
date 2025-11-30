@@ -2,6 +2,7 @@ import express from "express";
 import { DoctorController } from "./Doctor.controller.js";
 
 const router = express.Router();
+router.get("/", DoctorController.getAllFromDB);
 
 router.patch("/:id", DoctorController.updateIntoDB);
 
