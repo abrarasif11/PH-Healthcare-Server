@@ -1,10 +1,7 @@
 import { Doctor, Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma.js";
 import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
-import {
-  doctorFilterableFields,
-  doctorSearchableFields,
-} from "./Doctor.constant.js";
+import { doctorFilterableFields } from "./Doctor.constant.js";
 import { IDoctorFilterRequest, IDoctorUpdate } from "./Doctor.interface.js";
 
 const updateIntoDB = async (id: string, payload: any) => {
@@ -145,8 +142,29 @@ const getIdByDb = async (id: string) => {
   return result;
 };
 
+const deleteFromDb = async (id: string): Promise<Doctor | null> => {
+  const existingDoctor = await prisma.doctor.findUniqueOrThrow({
+    where: { id },
+  });
+
+  const result = await prisma.$transaction(async (tx) => {
+    const doctorDeletedData = await tx.doctor.delete({
+      where: { id },
+    });
+
+    await tx.user.delete({
+      where: { email: doctorDeletedData.email },
+    });
+
+    return doctorDeletedData;
+  });
+
+  return result;
+};
+
 export const DoctorService = {
   updateIntoDB,
   getAllFromDB,
   getIdByDb,
+  deleteFromDb,
 };
