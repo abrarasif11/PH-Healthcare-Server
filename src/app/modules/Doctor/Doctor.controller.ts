@@ -2,9 +2,9 @@ import catchAsync from "../../../shared/catchAsync.js";
 import sendResponse from "../../../shared/sendResponse.js";
 import { DoctorService } from "./Doctor.service.js";
 import httpStatus from "http-status";
-import { Request, Response } from "express";
-import pick from "../../../shared/pick.js";
+import { Request, RequestHandler, Response } from "express";
 import { doctorFilterableFields } from "./Doctor.constant.js";
+import pick from "../../../shared/pick.js";
 
 const updateIntoDB = catchAsync(async (req: Request, res: Response) => {
   const { id } = req.params;
@@ -18,35 +18,27 @@ const updateIntoDB = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
-const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
-  const filters = pick(req.query, doctorFilterableFields);
+const getAllFromDB: RequestHandler = catchAsync(
+  async (req: Request, res: Response) => {
+    // console.log(req.query);
 
-  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+    const filters = pick(req.query, doctorFilterableFields);
+    const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+    console.log(options);
+    console.log(options);
+    const result = await DoctorService.getAllFromDB(filters, options);
 
-  const result = await DoctorService.getAllFromDB(filters, options);
-
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Doctors retrieval successfully",
-    meta: result.meta,
-    data: result.data,
-  });
-});
-
-const getByIdFromDB = catchAsync(async (req: Request, res: Response) => {
-  const { id } = req.params;
-  const result = await DoctorService.getByIdFromDB(id);
-  sendResponse(res, {
-    statusCode: httpStatus.OK,
-    success: true,
-    message: "Doctor retrieval successfully",
-    data: result,
-  });
-});
+    sendResponse(res, {
+      statusCode: httpStatus.OK,
+      success: true,
+      message: "Admin Data Fetched",
+      meta: result.meta,
+      data: result.data,
+    });
+  }
+);
 
 export const DoctorController = {
   updateIntoDB,
   getAllFromDB,
-  getByIdFromDB,
 };

@@ -1,9 +1,11 @@
-import { Doctor, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma.js";
-import { IDoctorFilterRequest } from "./Doctor.interface.js";
-import { IPaginationOptions } from "../../interfaces/pagination.js";
-import { doctorSearchableFields } from "./Doctor.constant.js";
 import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
+import {
+  doctorFilterableFields,
+  doctorSearchableFields,
+} from "./Doctor.constant.js";
+import { IDoctorFilterRequest, IDoctorUpdate } from "./Doctor.interface.js";
 
 const updateIntoDB = async (id: string, payload: any) => {
   const { specialties, ...doctorData } = payload;
@@ -70,114 +72,70 @@ const updateIntoDB = async (id: string, payload: any) => {
 };
 
 const getAllFromDB = async (
-  filters: IDoctorFilterRequest,
-  options: IPaginationOptions
+  params: IDoctorFilterRequest,
+  options: IDoctorUpdate
 ) => {
   const { limit, page, skip } = pagintaionHelper.calculatePagination(options);
-  const { searchTerm, specialties, ...filterData } = filters;
+  const { searchTerm, ...filterData } = params;
+  const andCondition: Prisma.AdminWhereInput[] = [];
 
-  const andConditions: Prisma.DoctorWhereInput[] = [];
-
-  if (searchTerm) {
-    andConditions.push({
-      OR: doctorSearchableFields.map((field) => ({
-        [field]: {
-          contains: searchTerm,
+  // console.log(filterData);
+  if (params.searchTerm) {
+    andCondition.push({
+      OR: doctorFilterableFields.map((f) => ({
+        [f]: {
+          contains: params.searchTerm,
           mode: "insensitive",
         },
       })),
     });
   }
 
-  // doctor > doctorSpecialties > specialties -> title
-
-  if (specialties && specialties.length > 0) {
-    andConditions.push({
-      doctorSpecialties: {
-        some: {
-          specialities: {
-            title: {
-              contains: specialties,
-              mode: "insensitive",
-            },
-          },
+  if (Object.keys(filterData).length > 0) {
+    andCondition.push({
+      AND: Object.keys(filterData).map((key) => ({
+        [key]: {
+          equals: (filterData as any)[key],
         },
-      },
+      })),
     });
   }
 
-  if (Object.keys(filterData).length > 0) {
-    const filterConditions = Object.keys(filterData).map((key) => ({
-      [key]: {
-        equals: (filterData as any)[key],
-      },
-    }));
-    andConditions.push(...filterConditions);
-  }
-
-  andConditions.push({
+  andCondition.push({
     isDeleted: false,
   });
 
-  const whereConditions: Prisma.DoctorWhereInput =
-    andConditions.length > 0 ? { AND: andConditions } : {};
-
-  const result = await prisma.doctor.findMany({
+  // console.dir(andCondition, { depth: "infinity" });
+  const whereConditions: Prisma.AdminWhereInput = { AND: andCondition };
+  const result = await prisma.admin.findMany({
     where: whereConditions,
     skip,
     take: limit,
     orderBy:
       options.sortBy && options.sortOrder
-        ? { [options.sortBy]: options.sortOrder }
-        : { averageRating: "desc" },
-    include: {
-      doctorSpecialties: {
-        include: {
-          specialities: true,
-        },
-      },
-      review: {
-        select: {
-          rating: true,
-        },
-      },
-    },
+        ? {
+            [options.sortBy]: options.sortOrder,
+          }
+        : {
+            createdAt: "desc",
+          },
   });
 
-  const total = await prisma.doctor.count({
+  const total = await prisma.admin.count({
     where: whereConditions,
   });
 
   return {
     meta: {
-      total,
       page,
       limit,
+      total,
     },
     data: result,
   };
 };
 
-const getByIdFromDB = async (id: string): Promise<Doctor | null> => {
-  const result = await prisma.doctor.findUnique({
-    where: {
-      id,
-      isDeleted: false,
-    },
-    include: {
-      doctorSpecialties: {
-        include: {
-          specialities: true,
-        },
-      },
-      review: true,
-    },
-  });
-  return result;
-};
-
 export const DoctorService = {
   updateIntoDB,
   getAllFromDB,
-  getByIdFromDB,
 };
