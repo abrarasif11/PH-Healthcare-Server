@@ -1,4 +1,4 @@
-import { Prisma } from "@prisma/client";
+import { Doctor, Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma.js";
 import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
 import {
@@ -135,7 +135,18 @@ const getAllFromDB = async (
   };
 };
 
+const getIdByDb = async (id: string) => {
+  const result = await prisma.doctor.findFirst({
+    where: {
+      id,
+      isDeleted: false,
+    },
+  });
+  return result;
+};
+
 export const DoctorService = {
   updateIntoDB,
   getAllFromDB,
+  getIdByDb,
 };

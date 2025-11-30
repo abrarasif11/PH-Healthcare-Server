@@ -31,14 +31,28 @@ const getAllFromDB: RequestHandler = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "Admin Data Fetched",
+      message: "Doctor Data Fetched",
       meta: result.meta,
       data: result.data,
     });
   }
 );
 
+export const getIdByDb = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const result = await DoctorService.getIdByDb(id);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Doctor Data Fetched by Id",
+    data: result,
+  });
+});
+
 export const DoctorController = {
   updateIntoDB,
   getAllFromDB,
+  getIdByDb,
 };
