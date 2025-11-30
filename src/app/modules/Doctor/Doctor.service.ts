@@ -9,7 +9,7 @@ const updateIntoDB = async (id: string, payload: any) => {
   });
 
   await prisma.$transaction(async (transactionClient) => {
-    const updateDoctorData = await transactionClient.doctor.update({
+    await transactionClient.doctor.update({
       where: {
         id,
       },
