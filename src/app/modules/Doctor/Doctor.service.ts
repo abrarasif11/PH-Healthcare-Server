@@ -1,5 +1,9 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma.js";
+import { IDoctorFilterRequest } from "./Doctor.interface.js";
+import { IPaginationOptions } from "../../interfaces/pagination.js";
+import { doctorSearchableFields } from "./Doctor.constant.js";
+import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
 
 const updateIntoDB = async (id: string, payload: any) => {
   const { specialties, ...doctorData } = payload;
@@ -69,7 +73,7 @@ const getAllFromDB = async (
   filters: IDoctorFilterRequest,
   options: IPaginationOptions
 ) => {
-  const { limit, page, skip } = paginationHelper.calculatePagination(options);
+  const { limit, page, skip } = pagintaionHelper.calculatePagination(options);
   const { searchTerm, specialties, ...filterData } = filters;
 
   const andConditions: Prisma.DoctorWhereInput[] = [];
