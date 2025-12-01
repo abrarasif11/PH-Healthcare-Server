@@ -142,8 +142,45 @@ const updateIntoDB = async (
   return responseData;
 };
 
+const deleteFromDB = async (id: string): Promise<Patient | null> => {
+  const result = await prisma.$transaction(async (tx) => {
+    // delete medical reports
+    await tx.medicalReport.deleteMany({
+      where: {
+        patientId: id,
+      },
+    });
+
+    // delete patient health data
+    await tx.patientHealthData.deleteMany({
+      where: {
+        patientId: id,
+      },
+    });
+
+    // delete patient
+    const deletedPatient = await tx.patient.delete({
+      where: {
+        id,
+      },
+    });
+
+    // delete user
+    await tx.user.delete({
+      where: {
+        email: deletedPatient.email,
+      },
+    });
+
+    return deletedPatient;
+  });
+
+  return result;
+};
+
 export const PatientService = {
   getAllFromDB,
   getByIdFromDB,
   updateIntoDB,
+  deleteFromDB,
 };
