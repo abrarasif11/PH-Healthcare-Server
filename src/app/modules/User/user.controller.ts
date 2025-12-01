@@ -1,4 +1,4 @@
-import { Request, RequestHandler, Response } from "express";
+import { Request, Response } from "express";
 import { userService } from "./user.service.js";
 import catchAsync from "../../../shared/catchAsync.js";
 import sendResponse from "../../../shared/sendResponse.js";
