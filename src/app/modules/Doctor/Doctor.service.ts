@@ -1,8 +1,9 @@
-import { Doctor, Prisma } from "@prisma/client";
+import { Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma.js";
+import { doctorSearchableFields } from "./Doctor.constant.js";
+import { IDoctorFilterRequest } from "./Doctor.interface.js";
+import { IPaginationOptions } from "../../interfaces/pagination.js";
 import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
-import { doctorFilterableFields } from "./Doctor.constant.js";
-import { IDoctorFilterRequest, IDoctorUpdate } from "./Doctor.interface.js";
 
 const updateIntoDB = async (id: string, payload: any) => {
   const { specialties, ...doctorData } = payload;
@@ -69,30 +70,32 @@ const updateIntoDB = async (id: string, payload: any) => {
 };
 
 const getAllFromDB = async (
-  params: IDoctorFilterRequest,
-  options: IDoctorUpdate
+  filters: IDoctorFilterRequest,
+  options: IPaginationOptions
 ) => {
   const { limit, page, skip } = pagintaionHelper.calculatePagination(options);
-  const { searchTerm, specialties, ...filterData } = params;
-  const andCondition: Prisma.DoctorWhereInput[] = [];
+  const { searchTerm, specialties, ...filterData } = filters;
 
-  // console.log(filterData);
-  if (params.searchTerm) {
-    andCondition.push({
-      OR: doctorFilterableFields.map((f) => ({
-        [f]: {
-          contains: params.searchTerm,
+  const andConditions: Prisma.DoctorWhereInput[] = [];
+
+  if (searchTerm) {
+    andConditions.push({
+      OR: doctorSearchableFields.map((field) => ({
+        [field]: {
+          contains: searchTerm,
           mode: "insensitive",
         },
       })),
     });
   }
 
+  // doctor > doctorSpecialties > specialties -> title
+
   if (specialties && specialties.length > 0) {
-    andCondition.push({
+    andConditions.push({
       doctorSpecialties: {
         some: {
-          specialties: {
+          specialities: {
             title: {
               contains: specialties,
               mode: "insensitive",
@@ -104,112 +107,120 @@ const getAllFromDB = async (
   }
 
   if (Object.keys(filterData).length > 0) {
-    andCondition.push({
-      AND: Object.keys(filterData).map((key) => ({
-        [key]: {
-          equals: (filterData as any)[key],
-        },
-      })),
-    });
+    const filterConditions = Object.keys(filterData).map((key) => ({
+      [key]: {
+        equals: (filterData as any)[key],
+      },
+    }));
+    andConditions.push(...filterConditions);
   }
 
-  andCondition.push({
+  andConditions.push({
     isDeleted: false,
   });
 
-  // console.dir(andCondition, { depth: "infinity" });
-  const whereConditions: Prisma.AdminWhereInput = { AND: andCondition };
-  const result = await prisma.admin.findMany({
+  const whereConditions: Prisma.DoctorWhereInput =
+    andConditions.length > 0 ? { AND: andConditions } : {};
+
+  const result = await prisma.doctor.findMany({
     where: whereConditions,
     skip,
     take: limit,
     orderBy:
       options.sortBy && options.sortOrder
-        ? {
-            [options.sortBy]: options.sortOrder,
-          }
-        : {
-            createdAt: "desc",
-          },
+        ? { [options.sortBy]: options.sortOrder }
+        : { averageRating: "desc" },
+    include: {
+      doctorSpecialties: {
+        include: {
+          specialities: true,
+        },
+      },
+      review: {
+        select: {
+          rating: true,
+        },
+      },
+    },
   });
 
-  const total = await prisma.admin.count({
+  const total = await prisma.doctor.count({
     where: whereConditions,
   });
 
   return {
     meta: {
+      total,
       page,
       limit,
-      total,
     },
     data: result,
   };
 };
 
-const getIdByDb = async (id: string) => {
-  const result = await prisma.doctor.findFirst({
-    where: {
-      id,
-      isDeleted: false,
-    },
-  });
-  return result;
-};
+// const getIdByDb = async (id: string) => {
+//   const result = await prisma.doctor.findFirst({
+//     where: {
+//       id,
+//       isDeleted: false,
+//     },
+//   });
+//   return result;
+// };
 
-const deleteFromDb = async (id: string): Promise<Doctor | null> => {
-  const existingDoctor = await prisma.doctor.findUniqueOrThrow({
-    where: { id },
-  });
+// const deleteFromDb = async (id: string): Promise<Doctor | null> => {
+//   const existingDoctor = await prisma.doctor.findUniqueOrThrow({
+//     where: { id },
+//   });
 
-  const result = await prisma.$transaction(async (tx) => {
-    const doctorDeletedData = await tx.doctor.delete({
-      where: { id },
-    });
+//   const result = await prisma.$transaction(async (tx) => {
+//     const doctorDeletedData = await tx.doctor.delete({
+//       where: { id },
+//     });
 
-    await tx.user.delete({
-      where: { email: doctorDeletedData.email },
-    });
+//     await tx.user.delete({
+//       where: { email: doctorDeletedData.email },
+//     });
 
-    return doctorDeletedData;
-  });
+//     return doctorDeletedData;
+//   });
 
-  return result;
-};
+//   return result;
+// };
 
-const softDeleteFromDb = async (id: string): Promise<Doctor | null> => {
-  await prisma.admin.findUniqueOrThrow({
-    where: {
-      id,
-      isDeleted: false,
-    },
-  });
-  const result = await prisma.$transaction(async (transactionClient) => {
-    const adminDeletedData = await transactionClient.admin.update({
-      where: {
-        id,
-      },
-      data: {
-        isDeleted: true,
-      },
-    });
-    await transactionClient.user.update({
-      where: {
-        email: adminDeletedData.email,
-      },
-      data: {
-        status: UserStatus.DELETED,
-      },
-    });
-    return adminDeletedData;
-  });
-  return result;
-};
+// const softDeleteFromDb = async (id: string): Promise<Doctor | null> => {
+//   await prisma.admin.findUniqueOrThrow({
+//     where: {
+//       id,
+//       isDeleted: false,
+//     },
+//   });
+//   const result = await prisma.$transaction(async (transactionClient) => {
+//     const adminDeletedData = await transactionClient.admin.update({
+//       where: {
+//         id,
+//       },
+//       data: {
+//         isDeleted: true,
+//       },
+//     });
+//     await transactionClient.user.update({
+//       where: {
+//         email: adminDeletedData.email,
+//       },
+//       data: {
+//         status: UserStatus.DELETED,
+//       },
+//     });
+//     return adminDeletedData;
+//   });
+//   return result;
+// };
 
 export const DoctorService = {
   updateIntoDB,
   getAllFromDB,
-  getIdByDb,
-  deleteFromDb,
-  softDeleteFromDb,
+  // getIdByDb,
+  // deleteFromDb,
+  // softDeleteFromDb,
 };
