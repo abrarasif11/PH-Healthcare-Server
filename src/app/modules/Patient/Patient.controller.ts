@@ -1,0 +1,27 @@
+import { Request, Response } from "express";
+
+import httpStatus from "http-status";
+import catchAsync from "../../../shared/catchAsync.js";
+import pick from "../../../shared/pick.js";
+import sendResponse from "../../../shared/sendResponse.js";
+import { patientFilterableFields } from "./Patient.constans.js";
+import { PatientService } from "./Patient.service.js";
+
+const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, patientFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+
+  const result = await PatientService.getAllFromDB(filters, options);
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Patient retrieval successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
+export const PatientController = {
+  getAllFromDB,
+};
