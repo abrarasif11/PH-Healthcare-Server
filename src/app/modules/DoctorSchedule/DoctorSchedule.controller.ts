@@ -5,6 +5,7 @@ import httpStatus from "http-status";
 import { DoctorScheduleService } from "./DoctorSchedule.service.js";
 import { IAuthUser } from "../../interfaces/common.js";
 import pick from "../../../shared/pick.js";
+import { scheduleFilterableFields } from "./DoctorSchedule.constant.js";
 
 const insertIntoDB = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
@@ -59,8 +60,22 @@ const deleteFromDB = catchAsync(
   }
 );
 
+const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, scheduleFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await DoctorScheduleService.getAllFromDB(filters, options);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Doctor Schedule retrieval successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
+
 export const DoctorScheduleController = {
   insertIntoDB,
   getMySchedule,
   deleteFromDB,
+  getAllFromDB,
 };
