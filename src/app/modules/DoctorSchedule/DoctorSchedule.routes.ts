@@ -1,10 +1,10 @@
 import express from "express";
-import { ScheduleController } from "../Schedule/Schedule.controller.js";
 import auth from "../../middlewares/auth.js";
 import { UserRole } from "@prisma/client";
+import { DoctorScheduleController } from "./DoctorSchedule.controller.js";
 
 const router = express.Router();
 
-router.post("/", auth(UserRole.DOCTOR), ScheduleController.insertIntoDB);
+router.post("/", auth(UserRole.DOCTOR), DoctorScheduleController.insertIntoDB);
 
 export const DoctorScheduleRoutes = router;

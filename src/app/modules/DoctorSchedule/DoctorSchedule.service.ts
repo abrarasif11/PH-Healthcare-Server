@@ -1,11 +1,6 @@
 import prisma from "../../../shared/prisma.js";
 
-const insertIntoDB = async (
-  user: any,
-  payload: {
-    scheduleIds: string[];
-  }
-) => {
+const insertIntoDB = async (user: any, payload: { scheduleIds: string[] }) => {
   const doctorData = await prisma.doctor.findUniqueOrThrow({
     where: {
       email: user.email,
@@ -26,7 +21,4 @@ const insertIntoDB = async (
 
 export const DoctorScheduleService = {
   insertIntoDB,
-  // getMySchedule,
-  // deleteFromDB,
-  // getAllFromDB
 };

@@ -2,8 +2,8 @@ import { Request, Response } from "express";
 import catchAsync from "../../../shared/catchAsync.js";
 import sendResponse from "../../../shared/sendResponse.js";
 import httpStatus from "http-status";
-import { IAuthUser } from "../../interfaces/common.js";
 import { DoctorScheduleService } from "./DoctorSchedule.service.js";
+import { IAuthUser } from "../../interfaces/common.js";
 
 const insertIntoDB = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
@@ -18,10 +18,6 @@ const insertIntoDB = catchAsync(
     });
   }
 );
-
 export const DoctorScheduleController = {
   insertIntoDB,
-  // getMySchedule,
-  // deleteFromDB,
-  // getAllFromDB
 };
