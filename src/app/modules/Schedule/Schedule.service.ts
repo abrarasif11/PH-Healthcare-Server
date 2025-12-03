@@ -1,7 +1,7 @@
 import { addHours, addMinutes, format } from "date-fns";
 import prisma from "../../../shared/prisma.js";
 import { Prisma, Schedule } from "@prisma/client";
-import { ISchedule } from "./Schedule.interface.js";
+import { IFilterRequest, ISchedule } from "./Schedule.interface.js";
 import { IPaginationOptions } from "../../interfaces/pagination.js";
 import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
 import { IAuthUser } from "../../interfaces/common.js";
@@ -66,7 +66,7 @@ const insertIntoDB = async (payload: ISchedule): Promise<Schedule[]> => {
 };
 
 const getAllFromDB = async (
-  filters: any,
+  filters: IFilterRequest,
   options: IPaginationOptions,
   user: IAuthUser
 ) => {
