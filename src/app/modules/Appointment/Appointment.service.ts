@@ -7,6 +7,19 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
       email: user?.email,
     },
   });
+  const doctorData = await prisma.doctor.findUniqueOrThrow({
+    where: {
+      id: payload.doctorId,
+    },
+  });
+
+  await prisma.doctorSchedules.findFirstOrThrow({
+    where: {
+      doctorId: doctorData.id,
+      scheduleId: payload.scheduleId,
+      isBooked: false,
+    },
+  });
 };
 export const AppointmentService = {
   createAppointment,
