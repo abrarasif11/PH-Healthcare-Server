@@ -3,18 +3,29 @@ import { IAuthUser } from "../../interfaces/common.js";
 import { v4 as uuidv4 } from "uuid";
 
 const createAppointment = async (user: IAuthUser, payload: any) => {
+  if (!user?.email) {
+    throw new Error("Unauthorized request — no user email found");
+  }
+
+  if (!payload.doctorId || !payload.scheduleId) {
+    throw new Error("doctorId and scheduleId are required");
+  }
+
+  // 1. Get patient by email
   const patientData = await prisma.patient.findUniqueOrThrow({
     where: {
-      email: user?.email,
+      email: user.email, // <-- SAFE
     },
   });
 
+  // 2. Get doctor
   const doctorData = await prisma.doctor.findUniqueOrThrow({
     where: {
       id: payload.doctorId,
     },
   });
 
+  // 3. Check schedule availability
   await prisma.doctorSchedules.findFirstOrThrow({
     where: {
       doctorId: doctorData.id,
@@ -23,9 +34,10 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
     },
   });
 
+  // 4. Generate calling ID
   const videoCallingId: string = uuidv4();
-  console.log("Video Calling Id : ", videoCallingId);
 
+  // 5. Create appointment
   const result = await prisma.appointment.create({
     data: {
       patientId: patientData.id,
@@ -42,6 +54,7 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
 
   return result;
 };
+
 export const AppointmentService = {
   createAppointment,
 };
