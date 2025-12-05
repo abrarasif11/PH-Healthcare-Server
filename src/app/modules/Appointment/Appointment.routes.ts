@@ -5,17 +5,22 @@ import { AppointmentController } from "./Appointment.controller.js";
 
 const router = express.Router();
 
-router.post(
-  "/",
-  auth(UserRole.PATIENT),
-  // validateRequest(AppointmentValidation.createAppointment),
-  AppointmentController.createAppointment
-);
-
 router.get(
   "/my-appointment",
   auth(UserRole.PATIENT, UserRole.DOCTOR),
   AppointmentController.getMyAppointment
 );
 
+router.get(
+  "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  AppointmentController.getAllFromDB
+);
+
+router.post(
+  "/",
+  auth(UserRole.PATIENT),
+  // validateRequest(AppointmentValidation.createAppointment),
+  AppointmentController.createAppointment
+);
 export const AppointmentRoutes = router;
