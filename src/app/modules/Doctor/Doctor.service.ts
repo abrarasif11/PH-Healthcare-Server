@@ -1,12 +1,13 @@
-import { Prisma } from "@prisma/client";
+import { Doctor, Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma.js";
 import { doctorSearchableFields } from "./Doctor.constant.js";
-import { IDoctorFilterRequest } from "./Doctor.interface.js";
+import { IDoctorFilterRequest, IDoctorUpdate } from "./Doctor.interface.js";
 import { IPaginationOptions } from "../../interfaces/pagination.js";
 import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
 
-const updateIntoDB = async (id: string, payload: any) => {
+const updateIntoDB = async (id: string, payload: IDoctorUpdate) => {
   const { specialties, ...doctorData } = payload;
+
   const doctorInfo = await prisma.doctor.findUniqueOrThrow({
     where: {
       id,
@@ -19,9 +20,6 @@ const updateIntoDB = async (id: string, payload: any) => {
         id,
       },
       data: doctorData,
-      include: {
-        doctorSpecialties: true,
-      },
     });
 
     if (specialties && specialties.length > 0) {
@@ -29,24 +27,26 @@ const updateIntoDB = async (id: string, payload: any) => {
       const deleteSpecialtiesIds = specialties.filter(
         (specialty) => specialty.isDeleted
       );
+      //console.log(deleteSpecialtiesIds)
       for (const specialty of deleteSpecialtiesIds) {
         await transactionClient.doctorSpecialties.deleteMany({
           where: {
             doctorId: doctorInfo.id,
-            specialtiesId: specialty.specialtiesId,
+            specialitiesId: specialty.specialtiesId,
           },
         });
       }
 
-      //  create specialties
+      // create specialties
       const createSpecialtiesIds = specialties.filter(
         (specialty) => !specialty.isDeleted
       );
+      console.log(createSpecialtiesIds);
       for (const specialty of createSpecialtiesIds) {
         await transactionClient.doctorSpecialties.create({
           data: {
             doctorId: doctorInfo.id,
-            specialtiesId: specialty.specialtiesId,
+            specialitiesId: specialty.specialtiesId,
           },
         });
       }
@@ -60,15 +60,13 @@ const updateIntoDB = async (id: string, payload: any) => {
     include: {
       doctorSpecialties: {
         include: {
-          specialties: true,
+          specialities: true,
         },
       },
     },
   });
-
   return result;
 };
-
 const getAllFromDB = async (
   filters: IDoctorFilterRequest,
   options: IPaginationOptions
@@ -158,15 +156,23 @@ const getAllFromDB = async (
   };
 };
 
-// const getIdByDb = async (id: string) => {
-//   const result = await prisma.doctor.findFirst({
-//     where: {
-//       id,
-//       isDeleted: false,
-//     },
-//   });
-//   return result;
-// };
+const getByIdFromDB = async (id: string): Promise<Doctor | null> => {
+  const result = await prisma.doctor.findUnique({
+    where: {
+      id,
+      isDeleted: false,
+    },
+    include: {
+      doctorSpecialties: {
+        include: {
+          specialities: true,
+        },
+      },
+      review: true,
+    },
+  });
+  return result;
+};
 
 // const deleteFromDb = async (id: string): Promise<Doctor | null> => {
 //   const existingDoctor = await prisma.doctor.findUniqueOrThrow({
@@ -220,7 +226,7 @@ const getAllFromDB = async (
 export const DoctorService = {
   updateIntoDB,
   getAllFromDB,
-  // getIdByDb,
+  getByIdFromDB,
   // deleteFromDb,
   // softDeleteFromDb,
 };

@@ -6,58 +6,63 @@ datasource db {
 generator client {
   provider = "prisma-client-js"
 }
+
 model User {
-    id                 String @id @default(uuid())
-    email              String @unique
-    password           String
-    role               UserRole
-    needPasswordChange Boolean  @default(true)  
-    status             UserStatus @default(ACTIVE) 
-    createdAt          DateTime @default(now())
-    updatedAt          DateTime @updatedAt
-    admin              Admin?
-    doctor             Doctor? 
-    patient            Patient?
-    @@map("users")
+  id                 String     @id @default(uuid())
+  email              String     @unique
+  password           String
+  role               UserRole
+  needPasswordChange Boolean    @default(true)
+  status             UserStatus @default(ACTIVE)
+  createdAt          DateTime   @default(now())
+  updatedAt          DateTime   @updatedAt
+  admin              Admin?
+  doctor             Doctor?
+  patient            Patient?
+
+  @@map("users")
 }
 
 model Admin {
-    id                 String @id @default(uuid())
-    name               String
-    email              String @unique
-    profilePhoto       String?
-    contactNumber      String
-    isDeleted          Boolean  @default(false)
-    createdAt          DateTime @default(now())
-    updatedAt          DateTime @updatedAt
-    
-    user User @relation(fields: [email], references: [email])
+  id            String   @id @default(uuid())
+  name          String
+  email         String   @unique
+  profilePhoto  String?
+  contactNumber String
+  isDeleted     Boolean  @default(false)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
-    @@map("admins")
+  user User @relation(fields: [email], references: [email])
+
+  @@map("admins")
 }
 
 model Doctor {
-  id                 String @id @default(uuid())
-  name               String
-  email              String @unique
-  profilePhoto       String?
-  contactNumber      String
-  address            String
-  registrationNumber String
-  experience         Int @default(0)
-  gender             Gender
-  appointmentFee     Int
-  qualification      String
+  id                  String              @id @default(uuid())
+  name                String
+  email               String              @unique
+  profilePhoto        String?
+  contactNumber       String
+  address             String?
+  registrationNumber  String
+  experience          Int                 @default(0)
+  gender              Gender
+  appointmentFee      Int
+  qualification       String
   currentWorkingPlace String
   designation         String
-  isDeleted          Boolean  @default(false)
-  averageRating     Float  @default(0.0)
-  createdAt          DateTime @default(now())
-  updatedAt          DateTime @updatedAt
-  user User @relation(fields: [email], references: [email])
-  doctorSpecialties  DoctorSpecialties[] 
+  isDeleted           Boolean             @default(false)
+  averageRating       Float               @default(0.0)
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+  user                User                @relation(fields: [email], references: [email])
+  doctorSpecialties   DoctorSpecialties[]
   doctorSchedules     DoctorSchedules[]
-   appointment         Appointment[]
+  appointment         Appointment[]
+  prescription        Prescription[]
+  review              Review[]
+
   @@map("doctors")
 }
 
@@ -71,32 +76,36 @@ model Patient {
   isDeleted     Boolean  @default(false)
   createdAt     DateTime @default(now())
   updatedAt     DateTime @updatedAt
-  user    User  @relation(references: [email], fields: [email])
+
+  user              User               @relation(references: [email], fields: [email])
   patientHealthData PatientHealthData?
   medicalReport     MedicalReport[]
   appointment       Appointment[]
+  prescription      Prescription[]
+  review            Review[]
+
   @@map("patients")
 }
 
 model Specialties {
-  id            String   @id @unique @default(uuid())
-  title         String
-  icon          String
+  id                String              @id @default(uuid())
+  title             String
+  icon              String
   doctorSpecialties DoctorSpecialties[]
- @@map("specialties")
+
+  @@map("specialties")
 }
 
 model DoctorSpecialties {
-  specialtiesId  String
-  specialties    Specialties @relation(fields: [specialtiesId], references: [id])
-  
-  doctorId       String
+  specialitiesId String
+  specialities   Specialties @relation(fields: [specialitiesId], references: [id])
+
+  doctorId String
   doctor   Doctor @relation(fields: [doctorId], references: [id])
 
-  @@id([specialtiesId, doctorId])
-  @@map("doctor specialties")
+  @@id([specialitiesId, doctorId])
+  @@map("doctor_specialties")
 }
-
 
 model PatientHealthData {
   id                  String        @id @default(uuid())
@@ -133,7 +142,7 @@ model MedicalReport {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 
-  @@map("medical_reports")
+  @@map("madical_reports")
 }
 
 model Schedule {
@@ -144,37 +153,102 @@ model Schedule {
   updatedAt       DateTime          @updatedAt
   doctorSchedules DoctorSchedules[]
   appointment     Appointment?
+
   @@map("schedules")
 }
 
 model DoctorSchedules {
   doctorId String
   doctor   Doctor @relation(fields: [doctorId], references: [id])
+
   scheduleId String
   schedule   Schedule @relation(fields: [scheduleId], references: [id])
+
   isBooked Boolean @default(false)
+
   appointmentId String?      @unique
-  
+  appointment   Appointment? @relation(fields: [appointmentId], references: [id])
 
   @@id([doctorId, scheduleId])
-  @@map("doctor_schedules") 
+  @@map("doctor_schedules")
 }
- 
+
 model Appointment {
   id        String  @id @default(uuid())
   patientId String
   patient   Patient @relation(fields: [patientId], references: [id])
+
   doctorId String
   doctor   Doctor @relation(fields: [doctorId], references: [id])
+
   scheduleId String   @unique
   schedule   Schedule @relation(fields: [scheduleId], references: [id])
+
   videoCallingId  String
   status          AppointmentStatus @default(SCHEDULED)
   paymentStatus   PaymentStatus     @default(UNPAID)
   createdAt       DateTime          @default(now())
   updatedAt       DateTime          @updatedAt
-   @@map("appointments")
-} 
+  doctorSchedules DoctorSchedules?
+  payment         Payment?
+  prescription    Prescription?
+  review          Review?
+
+  @@map("appointments")
+}
+
+model Payment {
+  id            String      @id @default(uuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+
+  amount             Float
+  transactionId      String        @unique
+  status             PaymentStatus @default(UNPAID)
+  paymentGatewayData Json?
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  @@map("payments")
+}
+
+model Prescription {
+  id            String      @id @default(uuid())
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  instructions String
+  followUpDate DateTime?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@map("prescriptions")
+}
+
+model Review {
+  id        String  @id @default(uuid())
+  patientId String
+  patient   Patient @relation(fields: [patientId], references: [id])
+
+  doctorId String
+  doctor   Doctor @relation(fields: [doctorId], references: [id])
+
+  appointmentId String      @unique
+  appointment   Appointment @relation(fields: [appointmentId], references: [id])
+
+  rating    Float
+  comment   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("reviews")
+}
 
 enum UserRole {
   SUPER_ADMIN
@@ -209,6 +283,7 @@ enum MaritalStatus {
   MARRIED
   UNMARRIED
 }
+
 enum AppointmentStatus {
   SCHEDULED
   INPROGRESS
