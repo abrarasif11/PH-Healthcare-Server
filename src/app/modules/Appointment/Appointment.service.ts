@@ -75,8 +75,10 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
         transactionId,
       },
     });
+
     return appointmentData;
   });
+
   return result;
 };
 
