@@ -82,6 +82,9 @@ const createAppointment = async (user: IAuthUser, payload: any) => {
   return result;
 };
 
+const getMyAppointment = async () => {};
+
 export const AppointmentService = {
   createAppointment,
+  getMyAppointment,
 };
