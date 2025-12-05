@@ -36,7 +36,7 @@ const getMySchedule = catchAsync(
     sendResponse(res, {
       statusCode: httpStatus.OK,
       success: true,
-      message: "My Schedule Fetched Successfully",
+      message: "My Schedule fetched successfully!",
       data: result,
     });
   }

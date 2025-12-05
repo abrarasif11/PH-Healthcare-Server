@@ -1,13 +1,18 @@
 import { Prisma } from "@prisma/client";
 import prisma from "../../../shared/prisma.js";
-import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
 import { IPaginationOptions } from "../../interfaces/pagination.js";
 import { IAuthUser } from "../../interfaces/common.js";
 import httpStatus from "http-status";
 import ApiError from "../../errors/apiErrors.js";
 import { IDoctorScheduleFilterRequest } from "./DoctorSchedule.interface.js";
+import { pagintaionHelper } from "../../../helpers/paginationsHelpers.js";
 
-const insertIntoDB = async (user: any, payload: { scheduleIds: string[] }) => {
+const insertIntoDB = async (
+  user: any,
+  payload: {
+    scheduleIds: string[];
+  }
+) => {
   const doctorData = await prisma.doctor.findUniqueOrThrow({
     where: {
       email: user.email,
@@ -33,6 +38,7 @@ const getMySchedule = async (
 ) => {
   const { limit, page, skip } = pagintaionHelper.calculatePagination(options);
   const { startDate, endDate, ...filterData } = filters;
+  //console.log(filterData)
 
   const andConditions = [];
 
@@ -93,7 +99,6 @@ const getMySchedule = async (
         ? { [options.sortBy]: options.sortOrder }
         : {},
   });
-
   const total = await prisma.doctorSchedules.count({
     where: whereConditions,
   });
