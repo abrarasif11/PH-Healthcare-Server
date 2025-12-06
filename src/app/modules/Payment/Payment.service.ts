@@ -1,5 +1,7 @@
+import axios from "axios";
 import prisma from "../../../shared/prisma.js";
 import { SSLService } from "../SSL/SSL.service.js";
+import config from "../../../config/index.js";
 
 const initPayment = async (appointmentId: string) => {
   const paymentData = await prisma.payment.findFirstOrThrow({
@@ -28,6 +30,20 @@ const initPayment = async (appointmentId: string) => {
     paymentUrl: result.GatewayPageURL,
   };
 };
+
+const validatePayment = async (payload: any) => {
+  if (!payload || !payload.status || !(payload.status === "VALID")) {
+    return {
+      message: "Invalid Payment!",
+    };
+  }
+
+  const response = await axios({
+    method: "GET",
+    url: `${config.ssl.sslValidationAPI}?val_id=${payload.val_id}&store_id=${config.ssl.storeId}&store_passwd=${config.ssl.storePass}&format=json`,
+  });
+};
 export const PaymentService = {
   initPayment,
+  validatePayment,
 };
