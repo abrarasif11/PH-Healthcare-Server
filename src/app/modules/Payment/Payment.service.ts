@@ -1,3 +1,5 @@
+import axios from "axios";
+
 const initPayment = async () => {
   const data = {
     store_id: "phhea693318398723d",
@@ -31,6 +33,14 @@ const initPayment = async () => {
     ship_postcode: 1000,
     ship_country: "Bangladesh",
   };
+
+  const response = await axios({
+    method: "post",
+    url: "https://sandbox.sslcommerz.com/gwprocess/v3/api.php",
+    data: data,
+    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+  });
+  console.log(response.data);
 };
 export const PaymentService = {
   initPayment,
