@@ -5,6 +5,7 @@ import httpStatus from "http-status";
 import { IAuthUser } from "../../interfaces/common.js";
 import { PrescriptionService } from "./Prescription.service.js";
 import pick from "../../../shared/pick.js";
+import { prescriptionFilterableFields } from "./Prescription.constant.js";
 
 const insertIntoDB = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
@@ -39,6 +40,19 @@ const patientPrescription = catchAsync(
     });
   }
 );
+
+const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
+  const filters = pick(req.query, prescriptionFilterableFields);
+  const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
+  const result = await PrescriptionService.getAllFromDB(filters, options);
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Prescriptions retrieval successfully",
+    meta: result.meta,
+    data: result.data,
+  });
+});
 
 export const PrescriptionController = {
   insertIntoDB,

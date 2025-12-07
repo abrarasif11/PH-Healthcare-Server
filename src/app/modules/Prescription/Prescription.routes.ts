@@ -13,6 +13,12 @@ router.get(
   PrescriptionController.patientPrescription
 );
 
+router.get(
+  "/",
+  auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
+  PrescriptionController.getAllFromDB
+);
+
 router.post(
   "/",
   auth(UserRole.DOCTOR),
