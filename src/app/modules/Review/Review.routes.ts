@@ -3,10 +3,11 @@ import auth from "../../middlewares/auth.js";
 import validateRequest from "../../middlewares/validateReq.js";
 import { UserRole } from "@prisma/client";
 import { ReviewController } from "./Review.controller.js";
+import { ReviewValidation } from "./Review.validation.js";
 
 const router = express.Router();
 
-// router.get('/', ReviewController.getAllFromDB);
+router.get("/", ReviewController.getAllFromDB);
 
 router.post(
   "/",
