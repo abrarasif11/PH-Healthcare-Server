@@ -15,15 +15,13 @@ app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// cron.schedule('* * * * *', () => {
-//   try {
-//
-//   }
-//   catch (err) {
-//       console.error(err);
-//   }
-// });
-AppointmentService.cancelUnpaidAppointments();
+cron.schedule("* * * * *", () => {
+  try {
+    AppointmentService.cancelUnpaidAppointments();
+  } catch (err) {
+    console.error(err);
+  }
+});
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
