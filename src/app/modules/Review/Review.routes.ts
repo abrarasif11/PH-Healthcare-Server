@@ -2,6 +2,7 @@ import express from "express";
 import auth from "../../middlewares/auth.js";
 import validateRequest from "../../middlewares/validateReq.js";
 import { UserRole } from "@prisma/client";
+import { ReviewController } from "./Review.controller.js";
 
 const router = express.Router();
 
@@ -10,7 +11,7 @@ const router = express.Router();
 router.post(
   "/",
   auth(UserRole.PATIENT),
-  // validateRequest(ReviewValidation.create),
+  validateRequest(ReviewValidation.create),
   ReviewController.insertIntoDB
 );
 
