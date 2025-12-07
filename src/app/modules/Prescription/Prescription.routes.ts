@@ -3,8 +3,15 @@ import auth from "../../middlewares/auth.js";
 import validateRequest from "../../middlewares/validateReq.js";
 import { UserRole } from "@prisma/client";
 import { PrescriptionValidation } from "./Prescription.validation.js";
+import { PrescriptionController } from "./Prescription.controller.js";
 
 const router = express.Router();
+
+router.get(
+  "/my-prescription",
+  auth(UserRole.PATIENT),
+  PrescriptionController.patientPrescription
+);
 
 router.post(
   "/",
