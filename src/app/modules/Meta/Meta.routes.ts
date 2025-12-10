@@ -1,6 +1,7 @@
 import express from "express";
 import auth from "../../middlewares/auth.js";
 import { UserRole } from "@prisma/client";
+import { MetaController } from "./Meta.controller.js";
 
 const router = express.Router();
 
