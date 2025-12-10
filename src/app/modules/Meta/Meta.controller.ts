@@ -3,6 +3,7 @@ import sendResponse from "../../../shared/sendResponse.js";
 import httpStatus from "http-status";
 import { IAuthUser } from "../../interfaces/common.js";
 import { Request, Response } from "express";
+import { MetaService } from "./Meta.service.js";
 
 const fetchDashboardMetaData = catchAsync(
   async (req: Request & { user?: IAuthUser }, res: Response) => {
