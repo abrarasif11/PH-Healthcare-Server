@@ -24,7 +24,7 @@ const fetchDashboardMetaData = async (user: IAuthUser) => {
   return metaData;
 };
 
-const getSuperAdminMetaData = async (user: IAuthUser) => {
+const getSuperAdminMetaData = async () => {
   const appointmentCount = await prisma.appointment.count();
   const patientCount = await prisma.patient.count();
   const doctorCount = await prisma.doctor.count();
@@ -53,7 +53,7 @@ const getSuperAdminMetaData = async (user: IAuthUser) => {
   };
 };
 
-const getAdminMetaData = async (user: IAuthUser) => {
+const getAdminMetaData = async () => {
   const appointmentCount = await prisma.appointment.count();
   const patientCount = await prisma.patient.count();
   const doctorCount = await prisma.doctor.count();
@@ -180,25 +180,40 @@ const getPatientMetaData = async (user: IAuthUser) => {
       count: Number(_count.id),
     }));
 
-  const getBarChartData = async () => {
-    const appointmentCountByMonth: { month: Date; count: bigint }[] =
-      await prisma.$queryRaw`
-            SELECT DATE_TRUNC('month', "createdAt") AS month,
-            CAST(COUNT(*) AS INTEGER) AS count
-            FROM "appointments"
-            GROUP BY month
-            ORDER BY month ASC
-        `;
-
-    return appointmentCountByMonth;
-  };
-
   return {
     appointmentCount,
     prescriptionCount,
     reviewCount,
     formattedAppointmentStatusDistribution,
   };
+};
+
+const getBarChartData = async () => {
+  const appointmentCountByMonth: { month: Date; count: bigint }[] =
+    await prisma.$queryRaw`
+        SELECT DATE_TRUNC('month', "createdAt") AS month,
+        CAST(COUNT(*) AS INTEGER) AS count
+        FROM "appointments"
+        GROUP BY month
+        ORDER BY month ASC
+    `;
+
+  return appointmentCountByMonth;
+};
+
+const getPieChartData = async () => {
+  const appointmentStatusDistribution = await prisma.appointment.groupBy({
+    by: ["status"],
+    _count: { id: true },
+  });
+
+  const formattedAppointmentStatusDistribution =
+    appointmentStatusDistribution.map(({ status, _count }) => ({
+      status,
+      count: Number(_count.id),
+    }));
+
+  return formattedAppointmentStatusDistribution;
 };
 
 export const MetaService = {
