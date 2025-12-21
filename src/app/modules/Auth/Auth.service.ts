@@ -9,36 +9,34 @@ import ApiError from "../../errors/apiErrors.js";
 import httpStatus from "http-status";
 
 const loginUser = async (payload: { email: string; password: string }) => {
-  const userData = await prisma.user.findUniqueOrThrow({
+  const userData = await prisma.user.findFirst({
     where: {
       email: payload.email,
       status: UserStatus.ACTIVE,
     },
   });
 
-  const isCorrectPass: boolean = await bcrypt.compare(
+  if (!userData) {
+    throw new ApiError(httpStatus.NOT_FOUND, "User not found");
+  }
+
+  const isCorrectPass = await bcrypt.compare(
     payload.password,
     userData.password
   );
 
   if (!isCorrectPass) {
-    throw new Error("Password is incorrect!!");
+    throw new ApiError(httpStatus.UNAUTHORIZED, "Password is incorrect");
   }
 
   const accessToken = jwtHelpers.generateToken(
-    {
-      email: userData.email,
-      role: userData.role,
-    },
+    { email: userData.email, role: userData.role },
     config.jwt.jwt_secret as Secret,
     config.jwt.expires_in as string
   );
 
   const refreshToken = jwtHelpers.generateToken(
-    {
-      email: userData.email,
-      role: userData.role,
-    },
+    { email: userData.email, role: userData.role },
     config.jwt.refresh_token_secret as Secret,
     config.jwt.refresh_token_expires_in as string
   );
